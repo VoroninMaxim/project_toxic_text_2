@@ -1,12 +1,15 @@
-
-###!pip install transformers sentencepiece --quiet
-###-https://huggingface.co/cointegrated/rubert-tiny-toxicity
-
+﻿
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import streamlit as st
 
-st.title('Новая улучшенная классификации изображений в облаке Streamlit')
+st.write("""
+    # Мое первое веб приложение выложенное в Streamlit
+
+    Это коинтегрированная модель Руберта-Тайни, Предназначенная для классификации токсичности 
+    и неуместности коротких неформальных русских текстов.
+
+""")
 
 model_checkpoint = 'cointegrated/rubert-tiny-toxicity'
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
@@ -24,7 +27,18 @@ def text2toxicity(text, aggregate=True):
     if aggregate:
         return 1 - proba.T[0] * (1 - proba.T[-1])
     return proba
+#----------------------------------------------------------------
 
-url = st.text_input('Enter text')
+if 'my_lst' not in st.session_state:
+    st.session_state['my_lst'] = []
 
-st.write("{:.6f}".format(text2toxicity(url)), "--non-toxic--")
+with st.expander("Example"):
+    user_input = st.text_input("Enter a key")
+    add_button = st.button("Add", key='add_button')
+    if add_button:
+        if len(user_input) > 0:
+            st.session_state['my_lst'] += [(text2toxicity(user_input))]
+            st.write( st.session_state['my_lst'] )
+        else:
+            st.warning("Enter text")
+
